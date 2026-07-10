@@ -1,32 +1,185 @@
 openapi: 3.0.3
 info:
-  title: notifications-service
+  title: notifications-service-demo
+  description: Microservicio de notificaciones para el portal SDLC
   version: 1.0.0
+  contact:
+    name: SAUL-VIDAL-NTT
+
+servers:
+  - url: http://localhost:8080
+    description: Local development
+
+tags:
+  - name: notifications
+    description: Operaciones sobre notificaciones
+
 paths:
   /notifications:
     post:
-      summary: Encola una notificación
+      tags:
+        - notifications
+      summary: Crear una notificación
+      description: Crea una nueva notificación y la persiste localmente.
+      operationId: createNotification
       requestBody:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/NotificationRequest' }
+            schema:
+              $ref: '#/components/schemas/CreateNotificationRequest'
+            example:
+              title: "Avance de proyecto"
+              message: "Tu proyecto ha pasado a la siguiente fase."
+              recipientId: "user_456"
+              type: "PROJECT_UPDATE"
       responses:
-        '202': { description: Aceptada }
+        '201':
+          description: Notificación creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationResponse'
+              example:
+                id: "notif_abc123def456"
+                title: "Avance de proyecto"
+                message: "Tu proyecto ha pasado a la siguiente fase."
+                recipientId: "user_456"
+                type: "PROJECT_UPDATE"
+                createdAt: "2026-07-10T12:00:00Z"
+        '400':
+          description: Payload inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+              example:
+                error: "ValidationError"
+                message: "Invalid request payload"
+                details:
+                  - field: "title"
+                    issue: "required"
+
   /notifications/{id}:
     get:
-      summary: Estado de una notificación
+      tags:
+        - notifications
+      summary: Consultar una notificación por ID
+      description: Retorna la notificación identificada por su ID único.
+      operationId: getNotificationById
       parameters:
-        - { name: id, in: path, required: true, schema: { type: string } }
+        - name: id
+          in: path
+          required: true
+          description: Identificador único de la notificación
+          schema:
+            type: string
+            example: "notif_abc123def456"
       responses:
-        '200': { description: OK }
-        '404': { description: No encontrada }
+        '200':
+          description: Notificación encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationResponse'
+              example:
+                id: "notif_abc123def456"
+                title: "Avance de proyecto"
+                message: "Tu proyecto ha pasado a la siguiente fase."
+                recipientId: "user_456"
+                type: "PROJECT_UPDATE"
+                createdAt: "2026-07-10T12:00:00Z"
+        '404':
+          description: Notificación no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+              example:
+                error: "NotFoundError"
+                message: "Notification not found"
+
 components:
   schemas:
-    NotificationRequest:
+    CreateNotificationRequest:
       type: object
-      required: [recipientId, templateId, channel]
+      required:
+        - title
+        - message
+        - recipientId
+        - type
       properties:
-        recipientId: { type: string }
-        templateId:  { type: string }
-        channel:     { type: string, enum: [email, push, sms] }
+        title:
+          type: string
+          description: Título de la notificación (obligatorio, no vacío)
+          example: "Avance de proyecto"
+        message:
+          type: string
+          description: Cuerpo del mensaje (obligatorio, no vacío)
+          example: "Tu proyecto ha pasado a la siguiente fase."
+        recipientId:
+          type: string
+          description: Identificador del destinatario (obligatorio)
+          example: "user_456"
+        type:
+          type: string
+          description: Tipo de notificación (obligatorio)
+          example: "PROJECT_UPDATE"
+
+    NotificationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identificador único generado por el sistema
+          example: "notif_abc123def456"
+        title:
+          type: string
+          example: "Avance de proyecto"
+        message:
+          type: string
+          example: "Tu proyecto ha pasado a la siguiente fase."
+        recipientId:
+          type: string
+          example: "user_456"
+        type:
+          type: string
+          example: "PROJECT_UPDATE"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-07-10T12:00:00Z"
+
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "ValidationError"
+        message:
+          type: string
+          example: "Invalid request payload"
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldError'
+
+    FieldError:
+      type: object
+      properties:
+        field:
+          type: string
+          example: "title"
+        issue:
+          type: string
+          example: "required"
+
+    NotFoundError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "NotFoundError"
+        message:
+          type: string
+          example: "Notification not found"

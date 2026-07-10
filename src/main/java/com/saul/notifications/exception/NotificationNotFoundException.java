@@ -1,0 +1,8 @@
+package com.saul.notifications.exception;
+
+public class NotificationNotFoundException extends RuntimeException {
+
+    public NotificationNotFoundException(String id) {
+        super("Notification not found with id: " + id);
+    }
+}
