@@ -1,0 +1,32 @@
+openapi: 3.0.3
+info:
+  title: notifications-service
+  version: 1.0.0
+paths:
+  /notifications:
+    post:
+      summary: Encola una notificación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NotificationRequest' }
+      responses:
+        '202': { description: Aceptada }
+  /notifications/{id}:
+    get:
+      summary: Estado de una notificación
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: OK }
+        '404': { description: No encontrada }
+components:
+  schemas:
+    NotificationRequest:
+      type: object
+      required: [recipientId, templateId, channel]
+      properties:
+        recipientId: { type: string }
+        templateId:  { type: string }
+        channel:     { type: string, enum: [email, push, sms] }
