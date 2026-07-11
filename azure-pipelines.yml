@@ -1,0 +1,37 @@
+parameters:
+  - name: environment
+    displayName: target environment
+    default: dev
+    values: ['auto', 'dev', 'uat', 'prd']
+  - name: build
+    type: boolean
+    default: true
+  - name: package_for_deploy
+    type: boolean
+    default: false
+  - name: configure_rollback
+    type: boolean
+    default: false
+  - name: deploy
+    type: boolean
+    default: true
+
+resources:
+  repositories:
+    - repository: utils
+      type: github
+      name: ExampleCorpteam/devops-utils
+      endpoint: GitHub - devopsjarvis
+      ref: release/1.2
+
+variables:
+  - template: common/calc_environment.yml@utils
+
+extends:
+  template: java_utils/pipeline-template.yml@utils
+  parameters:
+    environment: ${{coalesce(replace(parameters.environment, 'auto', ''),variables.environment_branch)}}
+    build: ${{parameters.build}}
+    package_for_deploy: ${{parameters.package_for_deploy}}
+    configure_rollback: ${{parameters.configure_rollback}}
+    deploy: ${{parameters.deploy}}

@@ -1,0 +1,8 @@
+{
+  "id": "mock-notification-id-001",
+  "title": "Mock Notification",
+  "message": "This is a mock notification message for local development",
+  "projectId": "mock-project-001",
+  "createdAt": "2026-01-01T10:00:00.000Z",
+  "requestId": "mock-request-id-001"
+}

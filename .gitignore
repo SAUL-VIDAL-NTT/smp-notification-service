@@ -1,0 +1,97 @@
+application.properties
+.metadata
+bin/
+tmp/
+.vscode/
+*.tmp
+*.bak
+*.env
+.env.local
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+.mvn
+# External tool builders
+.externalToolBuilders/
+
+# Locally stored "Eclipse launch configurations"
+*.launch
+
+# PyDev specific (Python IDE for Eclipse)
+*.pydevproject
+
+# CDT-specific (C/C++ Development Tooling)
+.cproject
+
+# CDT- autotools
+.autotools
+
+# Java annotation processor (APT)
+.factorypath
+
+# PDT-specific (PHP Development Tools)
+.buildpath
+
+# sbteclipse plugin
+.target
+
+# Tern plugin
+.tern-project
+
+# TeXlipse plugin
+.texlipse
+
+# STS (Spring Tool Suite)
+.springBeans
+.mvn/
+.project
+
+# Code Recommenders
+.recommenders/
+
+# Annotation Processing
+.apt_generated/
+.apt_generated_test/
+documents
+# Scala IDE specific (Scala & Java development for Eclipse)
+.hazelCastCache-main
+.scala_dependencies
+.worksheet
+
+# Uncomment this line if you wish to ignore the project description file.
+# Typically, this file would be tracked if it contains build/dependency configurations:
+#.project
+/target/
+/.apt_generated_tests/
+
+### IntelliJ IDEA ###
+# JetBrains IDE
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs #
+logs
+*.log
+var
+
+# Eclipse IDE
+.mvn
+
+# Unit test reports
+TEST*.xml
+.env.local
