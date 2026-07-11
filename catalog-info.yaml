@@ -1,0 +1,20 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: smp-notification
+  title: smp-notification
+  description: SMP Notification Service - REST API for creating and querying persistent notifications
+  tags:
+    - language:java
+    - java-version:21
+    - framework:spring
+    - spring-version:3-3-11
+  annotations:
+    backstage.io/techdocs-ref: dir:./
+spec:
+  type: service
+  lifecycle: production
+  owner: group:default/canales-digitales-smp
+  system: smp
+  providesApis:
+    - smp-notification-openapi

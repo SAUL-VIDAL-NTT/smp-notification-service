@@ -1,0 +1,26 @@
+# governance-standard: v1.0.0
+name: "CI"
+on:
+  push:
+    branches: [ 'feature/**' ]
+  pull_request:
+    branches: [ main, master, release/** ]
+  workflow_dispatch:
+
+jobs:
+  CI:
+    uses: ExampleCorppe-platform-org/dso-maven-reusable/.github/workflows/_ci-backend.yml@v1 # NOSONAR - internal reusable workflow
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+      issues: write
+      actions: write
+      security-events: write
+      pull-requests: write
+    with:
+      application: smp
+      component-name: smp-notification
+      dockerfile: dockerfile-jdk21
+      deployment-platform: java-k8s
+    secrets: inherit # NOSONAR - dynamic app secrets

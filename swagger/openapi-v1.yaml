@@ -1,0 +1,281 @@
+openapi: 3.0.3
+
+info:
+  title: SMP Notification Service
+  description: REST API for creating and querying persistent notifications associated with SDLC project progress
+  version: 1.0.0
+  contact:
+    name: canales-digitales-smp
+    email: canales-digitales-smp@example.com
+
+servers:
+  - url: https://apigwuat.ExampleCorp.com/smp/notifications
+    description: API Gateway (UAT)
+  - url: http://localhost:8080
+    description: Local
+  - url: http://smp-notification-service-v1-svc.notification-dev.svc.cluster.local:8080
+    description: AKS (DEV / UAT / PROD)
+
+tags:
+  - name: Notifications
+    description: Operations for creating and retrieving notifications
+
+paths:
+
+  /notifications:
+    post:
+      tags:
+        - Notifications
+      summary: Create a new notification
+      description: Creates a new notification and persists it for later retrieval
+      operationId: create-notification
+      parameters:
+        - $ref: '#/components/parameters/ConsumerId'
+        - $ref: '#/components/parameters/SessionId'
+        - $ref: '#/components/parameters/SessionAppId'
+        - $ref: '#/components/parameters/CustomerId'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/DeviceType'
+        - $ref: '#/components/parameters/TraceParent'
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/SubscriptionKey'
+        - $ref: '#/components/parameters/XRequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateNotificationRequest'
+      responses:
+        '201':
+          description: Notification created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppResponseNotification'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /notifications/{id}:
+    get:
+      tags:
+        - Notifications
+      summary: Get notification by ID
+      description: Retrieves a persisted notification by its identifier
+      operationId: get-notification-by-id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Notification identifier
+          schema:
+            type: string
+            example: "550e8400-e29b-41d4-a716-446655440000"
+        - $ref: '#/components/parameters/ConsumerId'
+        - $ref: '#/components/parameters/SessionId'
+        - $ref: '#/components/parameters/SessionAppId'
+        - $ref: '#/components/parameters/CustomerId'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/DeviceType'
+        - $ref: '#/components/parameters/TraceParent'
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/SubscriptionKey'
+        - $ref: '#/components/parameters/XRequestId'
+      responses:
+        '200':
+          description: Notification retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppResponseNotification'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+
+  parameters:
+    ConsumerId:
+      name: consumerId
+      in: header
+      required: true
+      description: Channel identifier (e.g. SMP, MNB)
+      schema: { type: string, example: SMP }
+    SessionId:
+      name: sessionId
+      in: header
+      required: true
+      schema: { type: string, example: 550e8400-e29b-41d4-a716-446655440000 }
+    SessionAppId:
+      name: sessionAppId
+      in: header
+      schema: { type: string }
+    CustomerId:
+      name: customerId
+      in: header
+      schema: { type: string }
+    DeviceId:
+      name: deviceId
+      in: header
+      required: true
+      description: Encrypted device identifier
+      schema: { type: string }
+    DeviceType:
+      name: deviceType
+      in: header
+      required: true
+      description: AND for Android, IPH for iOS
+      schema: { type: string, enum: [AND, IPH] }
+    TraceParent:
+      name: traceparent
+      in: header
+      description: W3C trace context
+      schema: { type: string }
+    Authorization:
+      name: Authorization
+      in: header
+      required: true
+      description: Bearer JWT issued by the session
+      schema: { type: string, example: 'Bearer TOKEN_JWT_APP' }
+    ApiVersion:
+      name: apiVersion
+      in: header
+      required: true
+      schema: { type: string, example: v1 }
+    SubscriptionKey:
+      name: subscription-key
+      in: header
+      required: true
+      description: APIM subscription key
+      schema: { type: string }
+    XRequestId:
+      name: X-Request-Id
+      in: header
+      required: false
+      description: Correlation UUID for request tracing
+      schema: { type: string, format: uuid, example: "f47ac10b-58cc-4372-a567-0e02b2c3d479" }
+
+  schemas:
+
+    CreateNotificationRequest:
+      type: object
+      required:
+        - title
+        - message
+        - projectId
+      properties:
+        title:
+          type: string
+          description: Notification title
+          example: "Build pipeline completed"
+        message:
+          type: string
+          description: Notification message body
+          example: "Project myapp build #42 completed successfully"
+        projectId:
+          type: string
+          description: Identifier of the associated project
+          example: "proj-abc-123"
+
+    NotificationData:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique notification identifier (UUID)
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        title:
+          type: string
+          example: "Build pipeline completed"
+        message:
+          type: string
+          example: "Project myapp build #42 completed successfully"
+        projectId:
+          type: string
+          example: "proj-abc-123"
+        createdAt:
+          type: string
+          format: date-time
+          description: ISO-8601 creation timestamp
+          example: "2026-07-11T22:45:00.000Z"
+        requestId:
+          type: string
+          description: Request correlation ID
+          example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+
+    AppResponseNotification:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/AppStatus'
+        data:
+          $ref: '#/components/schemas/NotificationData'
+
+    AppStatus:
+      type: object
+      properties:
+        code:
+          type: string
+          example: '0000'
+        message:
+          type: string
+          example: 'Success response'
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'error'
+        error_code:
+          type: string
+          example: '9999'
+        message:
+          type: string
+          example: 'Lo sentimos, no hemos podido realizar tu operación.'
+        field:
+          type: string
+          description: Field name for validation errors
+        requestId:
+          type: string
+          description: Request correlation ID
+
+  responses:
+    BadRequest:
+      description: Invalid input data (400)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Unauthorized:
+      description: Invalid or missing Bearer token (401)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    NotFound:
+      description: Notification not found (404)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    InternalServerError:
+      description: Unexpected server error (500)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []

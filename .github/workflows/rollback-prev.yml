@@ -1,0 +1,33 @@
+# governance-standard: v1.0.0
+name: "Rollback - Ambientes Previos"
+run-name: "Rollback Ambientes Previos ${{ inputs.version }} on ${{ inputs.environment }}"
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: 'Selecciona el ambiente al que deseas desplegar'
+        options:
+          - dev
+          - uat
+      version:
+        description: 'Version to rollback (version or revision)'
+        required: true
+        default: ''
+
+jobs:
+  ROLLBACK:
+    uses: ExampleCorppe-platform-org/dso-k8s-reusable/.github/workflows/_cd-aks-rollback.yml@v1 # NOSONAR - internal reusable workflow
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+      issues: write
+    with:
+      application: smp
+      component-name: smp-notification
+      version: ${{ github.event.inputs.version }}
+      environment: ${{ github.event.inputs.environment }}
+      component-type: backend
+      build-type: java-mvn
+    secrets: inherit # NOSONAR - dynamic app secrets

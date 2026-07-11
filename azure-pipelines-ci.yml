@@ -1,0 +1,35 @@
+name: '$(Rev:rr)'
+
+####################
+# Trigger after any commit to master or feature/** branch
+####################
+trigger: none
+
+####################
+# Resources repository providing shared CI templates
+####################
+resources:
+  repositories:
+    - repository: ExampleCorpTeamAzTemplates
+      type: github
+      name: ExampleCorpteam/ExampleCorpteam-azure-templates
+      endpoint: GitHub - devopsjarvis
+      ref: feature/smp-project-configurations
+
+####################
+# Call the shared CI template
+####################
+extends:
+  template: src/templates/java-k8s/ci.yml@exampleTeamAzTemplates
+  parameters:
+    projectName: "SMP"
+    ExampleCorpTeamAzureTemplates: "ExampleCorpTeamAzTemplates"
+    jobVmImage: 'ubuntu-latest'
+    jdkVersion: '1.17'
+    jdkArch: 'x64'
+    debug: false
+    cache: false
+    isJavaLibrary: false
+    sonarEnable: true
+    sonarQualityGateEnable: true
+    fluidAttacksEnable: false

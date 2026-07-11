@@ -1,0 +1,104 @@
+replicaCount: 1
+revisionHistoryLimit: 3
+bianDomain: notification
+namespace: notification-dev
+image:
+  pullPolicy: Always
+  imagePullSecretName: regcred
+  resources:
+    requests:
+      cpu: 150m
+      memory: 700Mi
+    limits:
+      cpu: 400m
+      memory: 900Mi
+serviceAccount:
+  enabled: true
+livenessProbe:
+  httpGet:
+    path: /health/liveness
+    port: 8080
+  initialDelaySeconds: 40
+  timeoutSeconds: 25
+readinessProbe:
+  httpGet:
+    path: /health/readiness
+    port: 8080
+  initialDelaySeconds: 40
+  timeoutSeconds: 25
+service:
+  port: 8080
+  targetPort: 8080
+  type: ClusterIP
+hpa:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 1
+  metrics:
+    cpu:
+      targetAverageUtilization: 70
+prometheus:
+  enabled: true
+  port: 8080
+istio:
+  circuitBreaker:
+    enabled: true
+  readiness:
+    initialDelaySeconds: 60
+    periodSeconds: 5
+  destinationRule:
+    enabled: false
+  virtualService:
+    enabled: true
+    prefix: /notifications
+  gateway:
+    enabled: true
+  envoyFilter:
+    enabled: true
+  host: smp-notification-service-v1-svc.notification-dev.svc.cluster.local
+  hpa:
+    enabled: true
+    targetValue: 10
+  namespace: istio-system
+  consecutive5xxErrors: 3
+  interval: 5s
+  baseEjectionTime: 15s
+  maxEjectionPercent: 20
+  timeout: 30s
+configmap:
+  CONFIG_SERVICE_NAME: "AzureAppConfig"
+  SECRET_SERVICE_NAME: "AzureKeyVault"
+  CONFIG_KEYS: ""
+  APP_CONFIG_KEY: ""
+  SECRET_KEYS: "smp-public-key,smp-private-key,smp-private-key-iv,smp-private-key-password,smp-ntf-errors"
+  APP_SECRET_KEY: ""
+  PROFILE: dev
+  MOCKS: ''
+  LOG_LEVEL: ERROR
+  JAVA_OPTS: "-XX:+UseShenandoahGC -XX:ShenandoahGCMode=iu -XX:+AlwaysPreTouch -XX:+UnlockExperimentalVMOptions -XX:ShenandoahUncommitDelay=1000 -XX:ShenandoahGuaranteedGCInterval=10000 -Xms280m -Xmx520m -noverify -Djava.security.egd=file:/dev/./urandom -Dspring.backgroundpreinitializer.ignore=true"
+  CONFIG_SERVER_URI: 'http://smp-config-server-v1-svc.common-technical-services.svc.cluster.local:8080'
+  CONFIG_SERVER_TIMEOUT: 3000
+  MS_SECURITY_OAUTH2_CLIENTS_TIMEOUT: 2000
+  WEBCLIENT_TIME_OUT: 10
+  DYNAMIC_HEADERS_IN_WEB_CLIENT: sessionAppId,customerId,consumerId
+  IS_CUSTOMER_PRODUCTS_SESSION_INTEGRITY_ENABLED: false
+  LOGS_INCLUDED_RESPONSE_ENCRYPT_FIELDS:
+    METHODS:
+      createNotification: id
+  LOGS_INCLUDED_REQUEST_ENCRYPT_FIELDS:
+    METHODS:
+      createNotification: Authorization
+      validator: monitorData
+  LOGS_INCLUDED_REQUEST_MASK_FIELDS:
+    METHODS:
+      createNotification: sessionId,subscription-key
+      validator: tokenId,sessionId
+  LOGS_INCLUDED_REQUEST_SUB_OBJECT_MASK_FIELDS:
+    METHODS:
+      createNotification: requestId
+  LOGS_INCLUDED_REQUEST_SUB_OBJECT_ENCRYPT_FIELDS:
+    METHODS:
+      createNotification: message
+  LOGS_EXCLUDED_RESPONSE_FIELDS:
+    METHODS:
+      createNotification: stackTrace

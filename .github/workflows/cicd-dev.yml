@@ -1,0 +1,47 @@
+# governance-standard: v1.0.0
+name: "CICD - DEV"
+on:
+  push:
+    branches: [ main, master, 'release/**', 'hotfix/**' ]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  CI:
+    uses: ExampleCorppe-platform-org/dso-maven-reusable/.github/workflows/_ci-backend.yml@v1 # NOSONAR - internal reusable workflow
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+      issues: write
+      actions: write
+      security-events: write
+      pull-requests: write
+    with:
+      application: smp
+      component-name: smp-notification
+      dockerfile: dockerfile-jdk21
+      deployment-platform: java-k8s
+    secrets: inherit # NOSONAR - dynamic app secrets
+
+  CD-DEV:
+    needs: CI
+    uses: ExampleCorppe-platform-org/dso-k8s-reusable/.github/workflows/_cd-aks-dev.yml@v1 # NOSONAR - internal reusable workflow
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+      issues: write
+      actions: write
+      security-events: write
+      pull-requests: write
+      deployments: write
+    with:
+      application: smp
+      component-name: smp-notification
+      component-type: backend
+      build-type: java-mvn
+      helm-chart: microservice
+      version: ${{ needs.CI.outputs.version }}
+    secrets: inherit # NOSONAR - dynamic app secrets
