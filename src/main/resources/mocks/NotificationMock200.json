@@ -1,0 +1,9 @@
+{
+  "id": "mock-notif-001",
+  "title": "Project milestone updated",
+  "message": "The project moved to In Progress",
+  "projectId": "KAN-100",
+  "severity": "medium",
+  "createdAt": "2026-07-11T12:00:00Z",
+  "requestId": "req-uuid-1234"
+}

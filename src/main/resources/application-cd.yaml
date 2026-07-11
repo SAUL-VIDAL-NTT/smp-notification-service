@@ -1,0 +1,14 @@
+# Profiles dev/uat/prd. Every ${VAR} MUST exist in the configmap of values-*.yml
+# (directly, or via CONFIG_KEYS/SECRET_KEYS -> CoreConfig.init() -> SCREAMING_SNAKE_CASE).
+common:
+  profile: ${PROFILE}
+  mocks: ${MOCKS}
+  webclient-timeout: ${WEBCLIENT_TIME_OUT}
+
+static:
+  smp-public-key-crypto: ${SMP_PUBLIC_KEY}
+  smp-private-key-crypto: ${SMP_PRIVATE_KEY}
+  smp-private-key-iv-crypto: ${SMP_PRIVATE_KEY_IV}
+  smp-private-key-password-crypto: ${SMP_PRIVATE_KEY_PASSWORD}
+  error-messages: ${SMP_NTF_ERRORS}
+  is-customer-products-session-integrity-enabled: ${IS_CUSTOMER_PRODUCTS_SESSION_INTEGRITY_ENABLED}

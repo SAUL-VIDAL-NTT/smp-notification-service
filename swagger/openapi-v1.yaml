@@ -1,0 +1,267 @@
+openapi: 3.0.1
+
+info:
+  title: SMP Notification Service
+  description: Microservice for creating and querying project notifications for the SDLC portal. Exposes POST /notifications and GET /notifications/{id} with Bearer authentication, payload validation, and request traceability.
+  version: 1.0.0
+  contact:
+    name: smp-team
+    email: smp-team@example.com
+
+servers:
+  - url: https://apigwuat.ExampleCorp.com/smp/notifications
+    description: API Gateway (UAT)
+  - url: http://localhost:8080
+    description: Local
+  - url: http://smp-notification-service-v1-svc.notification-dev.svc.cluster.local:8080
+    description: AKS (DEV / UAT / PROD)
+
+tags:
+  - name: SMP Notification Service
+    description: Create and query project notifications
+
+paths:
+
+  /notifications:
+    post:
+      tags:
+        - SMP Notification Service
+      summary: Create a new project notification
+      operationId: create-notification
+      parameters:
+        - $ref: '#/components/parameters/ConsumerId'
+        - $ref: '#/components/parameters/SessionId'
+        - $ref: '#/components/parameters/SessionAppId'
+        - $ref: '#/components/parameters/CustomerId'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/DeviceType'
+        - $ref: '#/components/parameters/TraceParent'
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/SubscriptionKey'
+        - $ref: '#/components/parameters/XRequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequestBody'
+      responses:
+        '201':
+          description: Notification created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppResponseNotification'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /notifications/{id}:
+    get:
+      tags:
+        - SMP Notification Service
+      summary: Retrieve a notification by ID
+      operationId: get-notification-by-id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique notification identifier
+          schema:
+            type: string
+            example: notif-abc123def456
+        - $ref: '#/components/parameters/ConsumerId'
+        - $ref: '#/components/parameters/SessionId'
+        - $ref: '#/components/parameters/SessionAppId'
+        - $ref: '#/components/parameters/CustomerId'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/DeviceType'
+        - $ref: '#/components/parameters/TraceParent'
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/SubscriptionKey'
+        - $ref: '#/components/parameters/XRequestId'
+      responses:
+        '200':
+          description: Notification retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppResponseNotification'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+
+  parameters:
+    ConsumerId:
+      name: consumerId
+      in: header
+      required: true
+      description: Channel identifier (e.g. SMP, SDLC)
+      schema: { type: string, example: SMP }
+    SessionId:
+      name: sessionId
+      in: header
+      required: true
+      schema: { type: string, example: 550e8400-e29b-41d4-a716-446655440000 }
+    SessionAppId:
+      name: sessionAppId
+      in: header
+      schema: { type: string }
+    CustomerId:
+      name: customerId
+      in: header
+      schema: { type: string }
+    DeviceId:
+      name: deviceId
+      in: header
+      required: true
+      description: Encrypted device identifier
+      schema: { type: string }
+    DeviceType:
+      name: deviceType
+      in: header
+      required: true
+      description: AND for Android, IPH for iOS
+      schema: { type: string, enum: [AND, IPH] }
+    TraceParent:
+      name: traceparent
+      in: header
+      description: W3C trace context
+      schema: { type: string }
+    Authorization:
+      name: Authorization
+      in: header
+      required: true
+      description: Bearer JWT issued by the session
+      schema: { type: string, example: 'Bearer TOKEN_JWT_APP' }
+    ApiVersion:
+      name: apiVersion
+      in: header
+      required: true
+      schema: { type: string, example: v1 }
+    SubscriptionKey:
+      name: subscription-key
+      in: header
+      required: true
+      description: APIM subscription key
+      schema: { type: string }
+    XRequestId:
+      name: X-Request-Id
+      in: header
+      required: false
+      description: Request traceability identifier (UUID). Generated if not provided.
+      schema: { type: string, example: 'req-uuid-1234' }
+
+  schemas:
+
+    NotificationRequestBody:
+      type: object
+      required:
+        - title
+        - message
+        - projectId
+      properties:
+        title:
+          type: string
+          description: Notification title
+          example: Project milestone updated
+        message:
+          type: string
+          description: Notification descriptive message
+          example: The project moved to In Progress
+        projectId:
+          type: string
+          description: Associated project identifier
+          example: KAN-100
+        severity:
+          type: string
+          description: Optional notification severity
+          example: medium
+
+    NotificationData:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique notification identifier
+          example: notif-abc123def456
+        title:
+          type: string
+          example: Project milestone updated
+        message:
+          type: string
+          example: The project moved to In Progress
+        projectId:
+          type: string
+          example: KAN-100
+        severity:
+          type: string
+          example: medium
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-07-11T12:00:00Z'
+        requestId:
+          type: string
+          description: Traceability identifier correlated with the request
+          example: req-uuid-1234
+
+    AppResponseNotification:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/AppStatus'
+        data:
+          $ref: '#/components/schemas/NotificationData'
+
+    AppStatus:
+      type: object
+      properties:
+        code:
+          type: string
+          example: '0000'
+        message:
+          type: string
+          example: 'Success response'
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          example: '9999'
+        message:
+          type: string
+          example: Lo sentimos, no hemos podido realizar tu operación.
+
+  responses:
+    BadRequest:
+      description: Invalid input data — missing or invalid required fields
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Unauthorized:
+      description: Invalid or missing Bearer token
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    NotFound:
+      description: Notification not found for the given ID
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    InternalServerError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }

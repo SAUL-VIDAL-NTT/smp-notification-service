@@ -1,0 +1,20 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: smp-notification
+  title: smp-notification
+  description: Microservice for creating and querying project notifications for the SDLC portal. Exposes POST /notifications and GET /notifications/{id} with Bearer authentication, payload validation, and request traceability.
+  tags:
+    - language:java
+    - java-version:21
+    - framework:spring
+    - spring-version:3-3-11
+  annotations:
+    backstage.io/techdocs-ref: dir:./
+spec:
+  type: service
+  lifecycle: production
+  owner: group:default/smp-team
+  system: smp
+  providesApis:
+    - smp-notification-openapi

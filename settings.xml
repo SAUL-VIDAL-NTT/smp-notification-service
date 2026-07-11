@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0">
+    <servers>
+        <server>
+            <username>${env.user_artifactory}</username>
+            <password>${env.password_artifactory}</password>
+            <id>Jfrog Repository</id>
+        </server>
+    </servers>
+    <profiles>
+        <profile>
+            <id>multiple-repos</id>
+            <repositories>
+                <repository>
+                    <id>maven-repository</id>
+                    <url>https://repo.maven.apache.org/maven2/</url>
+                </repository>
+                <repository>
+                    <id>Jfrog Repository</id>
+                    <url>${env.url_artifactory}</url>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+    <activeProfiles>
+        <activeProfile>multiple-repos</activeProfile>
+    </activeProfiles>
+</settings>

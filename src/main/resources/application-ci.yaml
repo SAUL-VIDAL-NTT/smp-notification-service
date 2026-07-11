@@ -1,0 +1,13 @@
+# Profile: test. Hardcoded values for local dev / CI. Mocks enabled.
+common:
+  profile: test
+  mocks: mock, mock-notification
+  webclient-timeout: 5
+
+static:
+  smp-public-key-crypto: 'public-key-value'
+  smp-private-key-crypto: 'private-key-value'
+  smp-private-key-iv-crypto: 'private-key-iv-value'
+  smp-private-key-password-crypto: 'private-key-password-value'
+  error-messages: '{}'
+  is-customer-products-session-integrity-enabled: false
